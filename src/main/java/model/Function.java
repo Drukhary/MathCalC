@@ -47,6 +47,44 @@ public enum Function implements ApproxTypeInterface {
             }
         }
     },
+    POWERFUL() {
+        private double a,b;
+
+        @Override
+        public double value(double argument) {
+            return a * pow(argument,b);
+        }
+
+        @Override
+        public String getNoteFunction() {
+            return String.format("%.3f", a) + " * x^"+String.format("%.3f", b);
+        }
+
+        @Override
+        public void calculateCoefficient(ArrayList<Point> points) {
+            double[][] matrix;
+            double[] freeMembers;
+            matrix = new double[2][2];
+            freeMembers = new double[2];
+            matrix[0][0] = points.size();
+            matrix[0][1] = points.stream().mapToDouble(Point::getX).sum();
+            matrix[1][0] = matrix[0][1];
+            matrix[1][1] = points.stream().mapToDouble(point -> pow(point.getX(), 2)).sum();
+            freeMembers[0] = points.stream().mapToDouble(point -> log(point.getY())).sum();
+            freeMembers[1] = points.stream().mapToDouble(point -> log(point.getY()) * point.getX()).sum();
+            LinearSystem system = new LinearSystem(matrix, freeMembers);
+            double[] result = SystemSolver.solveSystem(system);
+            super.foundCoefficients = true;
+            if (result != null) {
+                result[0] = pow(E, result[0]);
+                result[1] = pow(E,result[1]);
+                this.a = result[0];
+                this.b = result[1];
+            } else {
+                super.foundCoefficients = false;
+            }
+        }
+    },
     LINEAR() {
         private double a,b;
 
@@ -78,8 +116,6 @@ public enum Function implements ApproxTypeInterface {
             if (result != null) {
                 this.a = result[0];
                 this.b = result[1];
-
-
             } else {
                 super.foundCoefficients = false;
             }
