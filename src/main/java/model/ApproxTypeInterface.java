@@ -5,5 +5,7 @@ import java.util.ArrayList;
 public interface ApproxTypeInterface {
 
     double value(double argument);
-    void CalculateCoefficient(ArrayList<Point> points);
+    void calculateCoefficient(ArrayList<Point> points);
+    String getNoteFunction();
+    void approximate();
 }

@@ -1,7 +1,5 @@
 import drawer.ResultDrawer;
-import math.Approximator;
-import model.ApproxResult;
-import model.FunctionType;
+import model.Function;
 import model.Point;
 
 import java.util.ArrayList;
@@ -11,7 +9,7 @@ public class Main {
 
     public static void main(String[] args) {
         Scanner terminalScanner = new Scanner(System.in);
-        FunctionType type = null;
+        Function type = null;
         String line;
         System.out.println("Лабораторная работа №4. Аппроксимация методом наименьших квадратов\n" +
                 "Задайте аппроксимирующую функцию\n" +
@@ -23,7 +21,7 @@ public class Main {
         while (flag) {
             line = terminalScanner.nextLine().trim().toUpperCase();
             try{
-                type = FunctionType.valueOf(line);
+                type = Function.valueOf(line);
                 flag=false;
             } catch (Exception e){
                 System.out.println("Тип введен неверно. Возможные варианты: LINEAR, QUADRATIC, EXPONENTIAL, LOGARITHMIC");
@@ -48,7 +46,7 @@ public class Main {
         ArrayList<Point> points = new ArrayList<>();
         for (int i = 0; i < amountOfPoints; i++) {
             System.out.println("Введите координату X точки №" + (i + 1));
-            if (type == FunctionType.LOGARITHMIC) {
+            if (type == Function.LOGARITHMIC) {
                 do {
                     System.out.println("Координата X должна быть строго больше нуля");
                     x = setCoordinate(terminalScanner);
@@ -58,7 +56,7 @@ public class Main {
                 x = setCoordinate(terminalScanner);
             }
             System.out.println("Введите координату Y точки №" + (i + 1));
-            if (type == FunctionType.EXPONENTIAL) {
+            if (type == Function.EXPONENTIAL) {
                 do {
                     System.out.println("Координата Y должна быть строго больше нуля");
                     y = setCoordinate(terminalScanner);
@@ -70,13 +68,12 @@ public class Main {
             Point point = new Point(x, y);
             points.add(point);
         }
-
-        ApproxResult result = Approximator.approximate(type, points);
-        if (result != null) {
-            System.out.println(result.toString());
+        type.approximate();
+        if (type.isFoundCoefficients()) {
+            System.out.println(type.toString());
 
             ResultDrawer drawer = new ResultDrawer();
-            drawer.drawResult(result);
+            drawer.drawResult(type);
         } else {
             System.out.println("Аппроксимировать невозможно");
         }

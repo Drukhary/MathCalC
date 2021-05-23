@@ -1,15 +1,17 @@
 package model;
 
+import lombok.Getter;
+import lombok.Setter;
 import math.SystemSolver;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import static java.lang.Math.*;
 
-public enum FunctionType implements ApproxTypeInterface {
+public enum Function implements ApproxTypeInterface {
     EXPONENTIAL() {
         private double a,b;
-        private boolean foundCoefficients;
 
         @Override
         public double value(double argument) {
@@ -17,12 +19,12 @@ public enum FunctionType implements ApproxTypeInterface {
         }
 
         @Override
-        public String toString() {
+        public String getNoteFunction() {
             return String.format("%.3f", a) + " * exp (" + String.format("%.3f", b) + " * x)";
         }
 
         @Override
-        public void CalculateCoefficient(ArrayList<Point> points) {
+        public void calculateCoefficient(ArrayList<Point> points) {
             double[][] matrix;
             double[] freeMembers;
             matrix = new double[2][2];
@@ -35,23 +37,18 @@ public enum FunctionType implements ApproxTypeInterface {
             freeMembers[1] = points.stream().mapToDouble(point -> log(point.getY()) * point.getX()).sum();
             LinearSystem system = new LinearSystem(matrix, freeMembers);
             double[] result = SystemSolver.solveSystem(system);
-            foundCoefficients = true;
+            super.foundCoefficients = true;
             if (result != null) {
                 result[0] = pow(E, result[0]);
                 this.a = result[0];
                 this.b = result[1];
             } else {
-                foundCoefficients = false;
+                super.foundCoefficients = false;
             }
-        }
-
-        public boolean isFoundCoefficients() {
-            return foundCoefficients;
         }
     },
     LINEAR() {
         private double a,b;
-        private boolean foundCoefficients;
 
         @Override
         public double value(double argument) {
@@ -59,12 +56,12 @@ public enum FunctionType implements ApproxTypeInterface {
         }
 
         @Override
-        public String toString() {
+        public String getNoteFunction() {
             return String.format("%.3f", a) + " * x + " + String.format("%.3f", b);
         }
 
         @Override
-        public void CalculateCoefficient(ArrayList<Point> points) {
+        public void calculateCoefficient(ArrayList<Point> points) {
             double[][] matrix;
             double[] freeMembers;
             matrix = new double[2][2];
@@ -77,22 +74,44 @@ public enum FunctionType implements ApproxTypeInterface {
             freeMembers[1] = points.stream().mapToDouble(Point::getY).sum();
             LinearSystem system = new LinearSystem(matrix, freeMembers);
             double[] result = SystemSolver.solveSystem(system);
-            foundCoefficients = true;
+            super.foundCoefficients = true;
             if (result != null) {
                 this.a = result[0];
                 this.b = result[1];
+
+
             } else {
-                foundCoefficients = false;
+                super.foundCoefficients = false;
             }
         }
 
-        public boolean isFoundCoefficients() {
-            return foundCoefficients;
+        private double pearsonCoefficient(ArrayList<Point> points){
+            double sumX=0,sumY=0,sumXY = 0,midX=0,midY=0;
+            for (Point point: points){
+                midX+=point.getX();
+                midY+=point.getY();
+            }
+            midX/=points.size();
+            midY/=points.size();
+            for (Point point: points){
+                sumX+=(point.getX()-midX)*(point.getX()-midX);
+                sumY+=(point.getY()-midY)*(point.getY()-midY);
+                sumXY+=(point.getX()-midX)*(point.getY()-midY);
+            }
+            return sumXY/Math.sqrt(sumX*sumY);
+        }
+
+        @Override
+        public String toString() {
+                return "Точки, участвующие в аппроксимации: " + Collections.singletonList(super.points) + "\n" +
+                        "Полученная функция: y = " + getNoteFunction() + "\n" +
+                        "Коэффициент корреляции Пирсона: " + this.pearsonCoefficient(super.points) +"\n" +
+                        "Вид аппроксимирующей функции: " + this.name()+ "\n" +
+                        "Отклонение : " + super.deviation+ "\n";
         }
     },
     LOGARITHMIC() {
         private double a,b;
-        private boolean foundCoefficients;
 
         @Override
         public double value(double argument) {
@@ -100,12 +119,12 @@ public enum FunctionType implements ApproxTypeInterface {
         }
 
         @Override
-        public String toString() {
+        public String getNoteFunction() {
             return String.format("%.3f", a) + " + " + String.format("%.3f", b) + " * ln(x)";
         }
 
         @Override
-        public void CalculateCoefficient(ArrayList<Point> points) {
+        public void calculateCoefficient(ArrayList<Point> points) {
             double[][] matrix;
             double[] freeMembers;
             matrix = new double[2][2];
@@ -118,35 +137,29 @@ public enum FunctionType implements ApproxTypeInterface {
             freeMembers[1] = points.stream().mapToDouble(point -> log(point.getX()) * point.getY()).sum();
             LinearSystem system = new LinearSystem(matrix, freeMembers);
             double[] result = SystemSolver.solveSystem(system);
-            foundCoefficients = true;
+            super.foundCoefficients = true;
             if (result != null) {
                 this.a = result[0];
                 this.b = result[1];
             } else {
-                foundCoefficients = false;
+                super.foundCoefficients = false;
             }
-        }
-
-        public boolean isFoundCoefficients() {
-            return foundCoefficients;
         }
     },
     QUADRATIC() {
         private double a,b,c;
-        private boolean foundCoefficients;
-
         @Override
         public double value(double argument) {
             return a * pow(argument, 2) + b * argument + c;
         }
 
         @Override
-        public String toString() {
+        public String getNoteFunction() {
             return String.format("%.3f", a) + " * x² + " + String.format("%.3f", b) + " * x + " + String.format("%.3f", c);
         }
 
         @Override
-        public void CalculateCoefficient(ArrayList<Point> points) {
+        public void calculateCoefficient(ArrayList<Point> points) {
             double[][] matrix;
             double[] freeMembers;
             matrix = new double[3][3];
@@ -166,20 +179,18 @@ public enum FunctionType implements ApproxTypeInterface {
 
             LinearSystem system = new LinearSystem(matrix, freeMembers);
             double[] result = SystemSolver.solveSystem(system);
-            foundCoefficients = true;
+            super.foundCoefficients = true;
             if (result != null) {
                 this.a = result[0];
                 this.b = result[1];
                 this.c = result[2];
             } else {
-                foundCoefficients = false;
+                super.foundCoefficients = false;
             }
         }
 
-        public boolean isFoundCoefficients() {
-            return foundCoefficients;
-        }
     };
+
 
     @Override
     public double value(double argument) {
@@ -189,15 +200,38 @@ public enum FunctionType implements ApproxTypeInterface {
     public String getType() {
         return this.name();
     }
+    @Getter
+    private boolean foundCoefficients;
+    @Setter
+    @Getter
+    private ArrayList<Point> points=null;
+    @Getter
+    private double deviation;
+
 
     @Override
     public String toString() {
-        return super.toString();
+        return "Точки, участвующие в аппроксимации: " + (this.points) + "\n" +
+                "Полученная функция: y = " + getNoteFunction() + "\n" +
+                "Вид аппроксимирующей функции: " + this.name()+ "\n" +
+                "Отклонение : " + this.deviation+ "\n";
     }
 
-    private boolean foundCoefficients;
-
-    public boolean isFoundCoefficients() {
-        return foundCoefficients;
+    public void approximate() {
+        this.calculateCoefficient(this.getPoints());
+        if (this.isFoundCoefficients()) {
+            this.deviation=calculateDeviation();
+        } else {
+            System.out.print("ERROR FATAL ERROR FATAL ERROR FATAL");
+        }
     }
+
+    private double calculateDeviation(){
+        double S=0;
+        for (Point point:this.points){
+            S+=(this.value(point.getX())-point.getY())*(this.value(point.getX())-point.getY());
+        }
+        return S;
+    }
+
 }
