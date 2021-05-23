@@ -31,11 +31,11 @@ public class Main {
         }
         System.out.println("Введите количество точек, которые будут участовать. Как минимум 4");
         boolean flag1 = false;
-        Integer amount_of_points = null;
+        Integer amountOfPoints = null;
         while (!flag1) {
             try {
-                amount_of_points = Integer.parseInt(terminalScanner.nextLine().trim());
-                if (amount_of_points >= 4) {
+                amountOfPoints = Integer.parseInt(terminalScanner.nextLine().trim());
+                if (amountOfPoints >= 4) {
                     flag1 = true;
                 } else {
                     System.out.println("Это должно быть целое число большее 3.");
@@ -44,26 +44,26 @@ public class Main {
                 System.out.println("Это должно быть целое число большее 3.");
             }
         }
-        Double x, y;
+        double x, y;
         ArrayList<Point> points = new ArrayList<>();
-        for (int i = 0; i < amount_of_points; i++) {
+        for (int i = 0; i < amountOfPoints; i++) {
             System.out.println("Введите координату X точки №" + (i + 1));
             if (type == FunctionType.LOGARITHMIC) {
-                x = -1.0;
-                while (x <= 0) {
-                    if (x <= 0) System.out.println("Координата X должна быть больше нуля");
+                do {
+                    System.out.println("Координата X должна быть строго больше нуля");
                     x = setCoordinate(terminalScanner);
                 }
+                while (x <= 0);
             } else {
                 x = setCoordinate(terminalScanner);
             }
             System.out.println("Введите координату Y точки №" + (i + 1));
             if (type == FunctionType.EXPONENTIAL) {
-                y = -1.0;
-                while (y <= 0) {
-                    if (y <= 0) System.out.println("Координата Y должна быть больше нуля");
+                do {
+                    System.out.println("Координата Y должна быть строго больше нуля");
                     y = setCoordinate(terminalScanner);
                 }
+                while (y <= 0);
             } else {
                 y = setCoordinate(terminalScanner);
             }
@@ -71,31 +71,28 @@ public class Main {
             points.add(point);
         }
 
-        Approximator approximator = new Approximator();
-        ApproxResult result = approximator.approximate(type, points);
+        ApproxResult result = Approximator.approximate(type, points);
         if (result != null) {
             System.out.println(result.toString());
 
             ResultDrawer drawer = new ResultDrawer();
             drawer.drawResult(result);
         } else {
-            System.out.println("Аппроксимировать невозможно. АШИБКА");
+            System.out.println("Аппроксимировать невозможно");
         }
 
     }
 
 
     private static Double setCoordinate(Scanner terminalScanner) {
-        boolean flag2 = false;
-        Double coord = null;
-        while (!flag2) {
+        Double value = null;
+        while (true) {
             try {
-                coord = Double.parseDouble(terminalScanner.nextLine().trim().replace(",", "."));
-                flag2 = true;
+                value = terminalScanner.nextDouble();
+                return value;
             } catch (NumberFormatException e) {
                 System.out.println("Это должно быть число.");
             }
         }
-        return coord;
     }
 }

@@ -1,10 +1,14 @@
 package model;
 
+import lombok.Getter;
+
 import java.util.Arrays;
 
 public class LinearSystem {
-    private double[][] matrix;
-    private double[] freeMembers;
+    @Getter
+    private final double[][] matrix;
+    @Getter
+    private final double[] freeMembers;
 
     public LinearSystem(double[][] matrix, double[] freeMembers) {
         this.matrix = matrix;
@@ -18,14 +22,6 @@ public class LinearSystem {
             output.append(Arrays.toString(matrix[i])).append(" * x =  ").append(freeMembers[i]).append("\n");
         }
         return output.toString();
-    }
-
-    public double[] getFreeMembers() {
-        return freeMembers;
-    }
-
-    public double[][] getMatrix() {
-        return matrix;
     }
 
 }

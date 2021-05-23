@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class ApproxResult {
-    private ArrayList<Function> functions;
-    private ArrayList<Point> points;
+    private final ArrayList<FunctionType> functions;
+    private final ArrayList<Point> points;
 
-    public ApproxResult(ArrayList<Function> functions, ArrayList<Point> points) {
+    public ApproxResult(ArrayList<FunctionType> functions, ArrayList<Point> points) {
         this.functions = functions;
         this.points = points;
     }
@@ -25,7 +25,7 @@ public class ApproxResult {
         return points;
     }
 
-    public ArrayList<Function> getFunctions() {
+    public ArrayList<FunctionType> getFunctions() {
         return functions;
     }
 }

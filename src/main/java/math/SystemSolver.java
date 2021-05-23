@@ -2,9 +2,9 @@ package math;
 
 import model.LinearSystem;
 
-class SystemSolver {
+public class SystemSolver {
 
-    double[] solveSystem(LinearSystem system) {
+    public static double[] solveSystem(LinearSystem system) {
         double[][] matrix = system.getMatrix();
         double[] freeMembers = system.getFreeMembers();
         int n = freeMembers.length;

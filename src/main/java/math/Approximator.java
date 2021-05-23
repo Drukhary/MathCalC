@@ -1,6 +1,9 @@
 package math;
 
-import model.*;
+import model.ApproxResult;
+import model.FunctionType;
+import model.LinearSystem;
+import model.Point;
 
 import java.util.ArrayList;
 
@@ -8,23 +11,23 @@ import static java.lang.Math.*;
 
 public class Approximator {
 
-    public ApproxResult approximate(FunctionType type, ArrayList<Point> points) {
-        double[] result = getCoefficient(type, points);
-        if (result != null) {
-            ArrayList<Function> functions = new ArrayList<>();
-            functions.add(new Function(type, result));
+    public static ApproxResult approximate(FunctionType type, ArrayList<Point> points) {
+        type.CalculateCoefficient(points);
+        if (type.isFoundCoefficients()) {
+            ArrayList<FunctionType> functions = new ArrayList<>();
+            functions.add(type);
             double max_deviation = 0.0;
             Point max_deviation_point = points.get(0);
             for (Point point : points) {
-                if (abs(point.getY() - functions.get(0).f(point.getX())) > max_deviation) {
-                    max_deviation = abs(point.getY() - functions.get(0).f(point.getX()));
+                if (abs(point.getY() - functions.get(0).value(point.getX())) > max_deviation) {
+                    max_deviation = abs(point.getY() - functions.get(0).value(point.getX()));
                     max_deviation_point = point;
                 }
             }
             points.remove(max_deviation_point);
-            double[] new_result = getCoefficient(type, points);
+            type.CalculateCoefficient(points);
             points.add(max_deviation_point);
-            functions.add(new Function(type, new_result));
+            functions.add(type);
             return new ApproxResult(functions, points);
         } else {
             return null;
@@ -34,7 +37,6 @@ public class Approximator {
     private double[] getCoefficient(FunctionType type, ArrayList<Point> points) {
         double[][] matrix;
         double[] freeMembers;
-        SystemSolver systemSolver = new SystemSolver();
         switch (type.toString()) {
             case ("LINEAR"):
                 matrix = new double[2][2];
@@ -88,7 +90,7 @@ public class Approximator {
                 break;
         }
         LinearSystem system = new LinearSystem(matrix, freeMembers);
-        double[] result = systemSolver.solveSystem(system);
+        double[] result = SystemSolver.solveSystem(system);
         if (result == null) return null;
         if (type == FunctionType.EXPONENTIAL) result[0] = pow(E, result[0]);
         return result;
