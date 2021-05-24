@@ -5,6 +5,7 @@ import lombok.Setter;
 import math.SystemSolver;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 
 import static java.lang.Math.*;
@@ -37,14 +38,11 @@ public enum Function implements ApproxTypeInterface {
             freeMembers[1] = points.stream().mapToDouble(point -> log(point.getY()) * point.getX()).sum();
             LinearSystem system = new LinearSystem(matrix, freeMembers);
             double[] result = SystemSolver.solveSystem(system);
-            super.foundCoefficients = true;
-            if (result != null) {
-                result[0] = pow(E, result[0]);
-                this.a = result[0];
-                this.b = result[1];
-            } else {
-                super.foundCoefficients = false;
-            }
+            assert result != null;
+            super.foundCoefficients = !Arrays.stream(result).allMatch(Double::isNaN);
+            result[0] = pow(E, result[0]);
+            this.a = result[0];
+            this.b = result[1];
         }
     },
     POWERFUL() {
@@ -74,15 +72,12 @@ public enum Function implements ApproxTypeInterface {
             freeMembers[1] = points.stream().mapToDouble(point -> log(point.getY()) * point.getX()).sum();
             LinearSystem system = new LinearSystem(matrix, freeMembers);
             double[] result = SystemSolver.solveSystem(system);
-            super.foundCoefficients = true;
-            if (result != null) {
-                result[0] = pow(E, result[0]);
-                result[1] = pow(E,result[1]);
-                this.a = result[0];
-                this.b = result[1];
-            } else {
-                super.foundCoefficients = false;
-            }
+            assert result != null;
+            super.foundCoefficients = !Arrays.stream(result).allMatch(Double::isNaN);
+            result[0] = pow(E, result[0]);
+            result[1] = pow(E,result[1]);
+            this.a = result[0];
+            this.b = result[1];
         }
     },
     LINEAR() {
@@ -112,13 +107,10 @@ public enum Function implements ApproxTypeInterface {
             freeMembers[1] = points.stream().mapToDouble(Point::getY).sum();
             LinearSystem system = new LinearSystem(matrix, freeMembers);
             double[] result = SystemSolver.solveSystem(system);
-            super.foundCoefficients = true;
-            if (result != null) {
-                this.a = result[0];
-                this.b = result[1];
-            } else {
-                super.foundCoefficients = false;
-            }
+            assert result != null;
+            super.foundCoefficients = !Arrays.stream(result).allMatch(Double::isNaN);
+            this.a = result[0];
+            this.b = result[1];
         }
 
         private double pearsonCoefficient(ArrayList<Point> points){
@@ -141,9 +133,9 @@ public enum Function implements ApproxTypeInterface {
         public String toString() {
                 return "Точки, участвующие в аппроксимации: " + Collections.singletonList(super.points) + "\n" +
                         "Полученная функция: y = " + getNoteFunction() + "\n" +
-                        "Коэффициент корреляции Пирсона: " + this.pearsonCoefficient(super.points) +"\n" +
+                        "Коэффициент корреляции Пирсона: " +  java.math.BigDecimal.valueOf(this.pearsonCoefficient(super.points)).toPlainString() +"\n" +
                         "Вид аппроксимирующей функции: " + this.name()+ "\n" +
-                        "Отклонение : " + super.deviation+ "\n";
+                        "Отклонение : " + (super.foundCoefficients?java.math.BigDecimal.valueOf(super.deviation).toPlainString():"")+ "\n";
         }
     },
     LOGARITHMIC() {
@@ -173,13 +165,10 @@ public enum Function implements ApproxTypeInterface {
             freeMembers[1] = points.stream().mapToDouble(point -> log(point.getX()) * point.getY()).sum();
             LinearSystem system = new LinearSystem(matrix, freeMembers);
             double[] result = SystemSolver.solveSystem(system);
-            super.foundCoefficients = true;
-            if (result != null) {
-                this.a = result[0];
-                this.b = result[1];
-            } else {
-                super.foundCoefficients = false;
-            }
+            assert result != null;
+            super.foundCoefficients = !Arrays.stream(result).allMatch(Double::isNaN);
+            this.a = result[0];
+            this.b = result[1];
         }
     },
     QUADRATIC() {
@@ -215,22 +204,28 @@ public enum Function implements ApproxTypeInterface {
 
             LinearSystem system = new LinearSystem(matrix, freeMembers);
             double[] result = SystemSolver.solveSystem(system);
-            super.foundCoefficients = true;
-            if (result != null) {
-                this.a = result[0];
-                this.b = result[1];
-                this.c = result[2];
-            } else {
-                super.foundCoefficients = false;
-            }
+            assert result != null;
+            super.foundCoefficients = !Arrays.stream(result).allMatch(Double::isNaN);
+            this.a = result[0];
+            this.b = result[1];
+            this.c = result[2];
         }
 
     };
 
-
     @Override
     public double value(double argument) {
         return 0;
+    }
+
+    @Override
+    public void calculateCoefficient(ArrayList<Point> points) {
+
+    }
+
+    @Override
+    public String getNoteFunction() {
+        return null;
     }
 
     public String getType() {
@@ -242,7 +237,7 @@ public enum Function implements ApproxTypeInterface {
     @Getter
     private ArrayList<Point> points=null;
     @Getter
-    private double deviation;
+    private double deviation=0;
 
 
     @Override
@@ -250,7 +245,7 @@ public enum Function implements ApproxTypeInterface {
         return "Точки, участвующие в аппроксимации: " + (this.points) + "\n" +
                 "Полученная функция: y = " + getNoteFunction() + "\n" +
                 "Вид аппроксимирующей функции: " + this.name()+ "\n" +
-                "Отклонение : " + this.deviation+ "\n";
+                "Отклонение : " + (this.foundCoefficients?java.math.BigDecimal.valueOf(this.deviation).toPlainString():"")+ "\n";
     }
 
     public void approximate() {

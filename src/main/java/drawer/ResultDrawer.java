@@ -35,7 +35,7 @@ public class ResultDrawer {
         }
         double extra = (right - left) / 10;
         left -= extra;
-        if (result.getType().equals(Function.LOGARITHMIC.getType()) && left <= 0) left = 1e-3;
+//        if (result.getType().equals(Function.LOGARITHMIC.getType()) && left <= 0) left = 1e-3;
         right += extra;
 
         // Series
