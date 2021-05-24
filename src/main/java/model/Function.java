@@ -40,8 +40,7 @@ public enum Function implements ApproxTypeInterface {
             double[] result = SystemSolver.solveSystem(system);
             assert result != null;
             super.foundCoefficients = !Arrays.stream(result).allMatch(Double::isNaN);
-            result[0] = pow(E, result[0]);
-            this.a = result[0];
+            this.a = pow(E, result[0]);
             this.b = result[1];
         }
     },
@@ -65,18 +64,16 @@ public enum Function implements ApproxTypeInterface {
             matrix = new double[2][2];
             freeMembers = new double[2];
             matrix[0][0] = points.size();
-            matrix[0][1] = points.stream().mapToDouble(Point::getX).sum();
+            matrix[0][1] = points.stream().mapToDouble(point -> log(point.getX())).sum();
             matrix[1][0] = matrix[0][1];
-            matrix[1][1] = points.stream().mapToDouble(point -> pow(point.getX(), 2)).sum();
+            matrix[1][1] = points.stream().mapToDouble(point -> pow(log(point.getX()), 2)).sum();
             freeMembers[0] = points.stream().mapToDouble(point -> log(point.getY())).sum();
-            freeMembers[1] = points.stream().mapToDouble(point -> log(point.getY()) * point.getX()).sum();
+            freeMembers[1] = points.stream().mapToDouble(point -> log(point.getY()) * log(point.getX())).sum();
             LinearSystem system = new LinearSystem(matrix, freeMembers);
             double[] result = SystemSolver.solveSystem(system);
             assert result != null;
             super.foundCoefficients = !Arrays.stream(result).allMatch(Double::isNaN);
-            result[0] = pow(E, result[0]);
-            result[1] = pow(E,result[1]);
-            this.a = result[0];
+            this.a = pow(E, result[0]);
             this.b = result[1];
         }
     },
