@@ -234,7 +234,7 @@ public enum Function implements ApproxTypeInterface {
     @Getter
     private ArrayList<Point> points=null;
     @Getter
-    private double deviation=0;
+    private double deviation=Double.MAX_VALUE;
 
 
     @Override
