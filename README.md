@@ -7,3 +7,6 @@ https://vk.com/wall-186416042?q=%23вычмат
 
 https://simenergy.ru/math-analysis/digital-processing/85-ordinary-least-squares - formuls for approx
 https://planetcalc.ru/5992/
+
+https://vk.com/doc581147327_599458560?hash=8be5f66486e004320e&dl=e3e79fc81ecf55c146 - отчетинг
+https://docs.google.com/document/d/1IsvIFlGSVRSCvEj6Ca_ZgTsb3hxSf1YtgOc_4wFm3Zo/edit?usp=sharing - документ
