@@ -128,11 +128,12 @@ public enum Function implements ApproxTypeInterface {
 
         @Override
         public String toString() {
-                return "Точки, участвующие в аппроксимации: " + Collections.singletonList(super.points) + "\n" +
+                return "Точки, участвующие в аппроксимации: " + super.points + "\n" +
                         "Полученная функция: y = " + getNoteFunction() + "\n" +
                         "Коэффициент корреляции Пирсона: " +  java.math.BigDecimal.valueOf(this.pearsonCoefficient(super.points)).toPlainString() +"\n" +
                         "Вид аппроксимирующей функции: " + this.name()+ "\n" +
-                        "Отклонение : " + (super.foundCoefficients?java.math.BigDecimal.valueOf(super.deviation).toPlainString():"")+ "\n";
+                        "Отклонение : " + (super.foundCoefficients?java.math.BigDecimal.valueOf(super.deviation).toPlainString():"")+ "\n"+
+                        "Достоверность аппроксимации : " + (super.foundCoefficients?java.math.BigDecimal.valueOf(super.R).toPlainString():"")+ "\n";
         }
     },
     LOGARITHMIC() {
@@ -235,6 +236,8 @@ public enum Function implements ApproxTypeInterface {
     private ArrayList<Point> points=null;
     @Getter
     private double deviation=Double.MAX_VALUE;
+    @Getter
+    private double R = 1;
 
 
     @Override
@@ -242,15 +245,17 @@ public enum Function implements ApproxTypeInterface {
         return "Точки, участвующие в аппроксимации: " + (this.points) + "\n" +
                 "Полученная функция: y = " + getNoteFunction() + "\n" +
                 "Вид аппроксимирующей функции: " + this.name()+ "\n" +
-                "Отклонение : " + (this.foundCoefficients?java.math.BigDecimal.valueOf(this.deviation).toPlainString():"")+ "\n";
+                "Отклонение : " + (this.foundCoefficients?java.math.BigDecimal.valueOf(this.deviation).toPlainString():"")+ "\n"+
+                "Достоверность аппроксимации : " + (this.foundCoefficients?java.math.BigDecimal.valueOf(this.R).toPlainString():"")+ "\n";
     }
 
     public void approximate() {
         this.calculateCoefficient(this.getPoints());
         if (this.isFoundCoefficients()) {
             this.deviation=calculateDeviation();
+            this.R = calculateR();
         } else {
-            System.out.print("ERROR FATAL ERROR FATAL ERROR FATAL");
+            System.out.println(this.getType()+": Unsuccessful approximation");
         }
     }
 
@@ -260,6 +265,11 @@ public enum Function implements ApproxTypeInterface {
             S+=(this.value(point.getX())-point.getY())*(this.value(point.getX())-point.getY());
         }
         return S;
+    }
+    private double calculateR(){
+        return 1 - points.stream().mapToDouble(point -> pow(point.getY() - value(point.getX()),2)).sum()
+                /(points.stream().mapToDouble(point -> pow(value(point.getX()),2)).sum()
+                -(1./points.size())*pow(points.stream().mapToDouble(point -> value(point.getX())).sum(),2));
     }
 
 }

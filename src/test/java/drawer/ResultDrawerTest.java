@@ -48,8 +48,8 @@ public class ResultDrawerTest {
         if (theFunction.isFoundCoefficients()) {
             System.out.println(theFunction.toString());
 
-            ResultDrawer drawer = new ResultDrawer();
-            drawer.drawResult(theFunction);
+//            ResultDrawer drawer = new ResultDrawer();
+//            drawer.drawResult(theFunction);
         } else {
             System.out.println("Аппроксимировать невозможно. А ЖАЛЬ");
         }
@@ -74,8 +74,8 @@ public class ResultDrawerTest {
         if (theFunction.isFoundCoefficients()) {
             System.out.println(theFunction.toString());
 
-            ResultDrawer drawer = new ResultDrawer();
-            drawer.drawResult(theFunction);
+//            ResultDrawer drawer = new ResultDrawer();
+//            drawer.drawResult(theFunction);
         } else {
             System.out.println("Аппроксимировать невозможно. А ЖАЛЬ");
         }

@@ -6,6 +6,7 @@ import model.Point;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -39,13 +40,13 @@ public class InputTable {
         return resultTable;
     }
 
-    private static ArrayList<Point> inputFromFile() throws FileNotFoundException {
+    private static ArrayList<Point> inputFromFile(File file) throws FileNotFoundException {
         ArrayList<Point> resultTable = new ArrayList<>();
-        File file = new File("src/main/resources/file");
         Scanner sc = new Scanner(file);
         int amountOfPoint = sc.nextInt();
         for (int i = 0; i < amountOfPoint; i++) {
-            resultTable.add(new Point(sc.nextDouble(), sc.nextDouble()));
+            resultTable.add(new Point(sc.nextDouble(),
+                    sc.nextDouble()));
         }
         return resultTable;
     }
@@ -72,14 +73,21 @@ public class InputTable {
         ArrayList<Point> functionTable;
         if (line.equals("k"))
             functionTable = InputTable.inputFromKeyboard(terminalScanner);
-        else functionTable = InputTable.inputFromFile();
+        else {
+            ApproximateFile approximateFile = ApproximateFile.LINEAR;
+            functionTable = InputTable.inputFromFile(approximateFile.getFile());
+        }
         double minDeviation = Double.MAX_VALUE;
         Function theFunction = Function.LINEAR;
         Function[] functions = new Function[]{Function.LINEAR, Function.QUADRATIC, Function.LOGARITHMIC, Function.EXPONENTIAL, Function.POWERFUL};
+        ArrayList<Function> resultFunctions = new ArrayList<>();
         for (Function function : functions) {
             function.setPoints(functionTable);
             function.approximate();
-            System.out.println(function.toString());
+            if (function.isFoundCoefficients()) {
+                System.out.println(function.toString());
+                resultFunctions.add(function);
+            }
             if (minDeviation > function.getDeviation()) {
                 theFunction = function;
                 minDeviation = theFunction.getDeviation();
@@ -88,9 +96,16 @@ public class InputTable {
         if (theFunction.isFoundCoefficients()) {
             System.out.println("--------------------------------------------------------------------------------------------------");
             System.out.println(theFunction.toString());
-
             ResultDrawer drawer = new ResultDrawer();
-            drawer.drawResult(theFunction);
+
+            drawer.drawResult(resultFunctions);
+            for (Function function:
+                 resultFunctions) {
+                ArrayList<Function> theFunctions = new ArrayList<>();
+                theFunctions.add(function);
+                drawer = new ResultDrawer();
+                drawer.drawResult(theFunctions);
+            }
         } else {
             System.out.println("Аппроксимировать невозможно. А ЖАЛЬ");
         }
